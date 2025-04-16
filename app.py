@@ -34,7 +34,7 @@ def add_student():
 # Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
 return render_template('add_student.html')
 
-if __name__ == '__main__':if __name__ == '__main__':
+if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
