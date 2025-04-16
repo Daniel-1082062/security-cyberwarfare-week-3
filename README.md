@@ -8,3 +8,15 @@ Deze repository bevat de volgende bestanden:
 - Een lijst met initiële studenten: [studenten.json](studenten.json)
 
 Je mag dit document leegmaken en gebruiken voor documentatie van jouw uitwerking. 
+
+
+
+# Requirements
+
+Los van Python en Docker zijn een aantal packages benodigd om de applicatie te draaien. Deze kun je vinden in het bestand genaamd 'requirements.txt'
+
+Installeer de packages eenvoudig door de volgende command in te voeren in de terminal.
+   ```bash
+   pip install -r requirements.txt
+   ```
+
