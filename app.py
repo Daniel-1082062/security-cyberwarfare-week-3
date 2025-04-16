@@ -1,11 +1,14 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from db import db
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'data', 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db.init_app(app)
 
 @app.route('/')
 def index():
@@ -32,9 +35,11 @@ def add_student():
         return redirect(url_for('index'))
 
 # Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
-return render_template('add_student.html')
+    return render_template('add_student.html')
 
 if __name__ == '__main__':
     with app.app_context():
+        import os
+        print("DB pad:", os.path.abspath("data/database.db"))
         db.create_all()
     app.run(debug=True)
