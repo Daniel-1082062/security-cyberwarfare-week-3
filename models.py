@@ -1,4 +1,4 @@
-from app import db
+from db import db
 
 # Creating the columns for the student table in the database
 class Student(db.Model):
