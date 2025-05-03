@@ -39,7 +39,7 @@ def add_student():
 
 if __name__ == '__main__':
     with app.app_context():
-        import os
-        print("DB pad:", os.path.abspath("data/database.db"))
+        # import os
+        # print("DB pad:", os.path.abspath("data/database.db"))
         db.create_all()
     app.run(debug=True)
