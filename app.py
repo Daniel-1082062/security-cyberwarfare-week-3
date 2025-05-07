@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from db import db
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -15,7 +15,7 @@ def index():
     return 'Hello World!'
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
-from models import Student
+from models import Student, Statement, StatementChoice
 
 # Route om een nieuwe student toe te voegen
 @app.route('/add_student', methods=['GET', 'POST'])
@@ -33,6 +33,20 @@ def add_student():
         db.session.add(new_student)
         db.session.commit()
         return redirect(url_for('index'))
+
+@app.route("/statements")
+def all_statements():
+    statements = Statement.query.all()
+    return jsonify([
+        {
+            "number": s.statement_number,
+            "choices": [
+                {"text": c.choice_text, "result": c.choice_result}
+                for c in s.statement_choices
+            ]
+        }
+        for s in statements
+    ])
 
 # Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
     return render_template('add_student.html')
