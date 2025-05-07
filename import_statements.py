@@ -31,6 +31,3 @@ with app.app_context():
 
         db.session.commit()
         print(f"{len(data)} stellingen geïmporteerd.")
-
-        s = Statement.query.first()
-        print(s.statement_choices)

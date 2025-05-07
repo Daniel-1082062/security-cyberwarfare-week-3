@@ -4,8 +4,8 @@ from db import db
 class Student(db.Model):
     student_id = db.Column(db.Integer, primary_key=True)
     student_number = db.Column(db.String(7), unique=True, nullable=False)
-    name = db.Column(db.String(120), nullable=False)
-    class_name = db.Column(db.String(2), nullable=False)
+    student_name = db.Column(db.String(120), nullable=False)
+    student_class = db.Column(db.String(2), nullable=False)
 
 # Maak de klolommen aan voor de Statement tabel in de database
 class Statement(db.Model):

@@ -24,5 +24,5 @@ with app.app_context():
         db.session.add(student)
 
     db.session.commit()
-    print(f"{len(data)} studenten geïmporteerd.")
+    print(f"{len(students)} studenten geïmporteerd.")
 
