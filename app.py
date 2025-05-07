@@ -18,7 +18,7 @@ def index():
 from models import Student, Statement, StatementChoice
 
 # Route om een nieuwe student toe te voegen
-@app.route('/add_student', methods=['GET', 'POST'])
+@app.route("/add_student", methods=['GET', 'POST'])
 def add_student():
     # Als de method POST is, maak een nieuwe rij in de tabel met als data de gegevens die in het formulier zijn ingevuld
     if request.method == 'POST':
@@ -34,6 +34,9 @@ def add_student():
         db.session.commit()
         return redirect(url_for('index'))
 
+    # Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
+    return render_template('add_student.html')
+
 @app.route("/statements")
 def all_statements():
     statements = Statement.query.all()
@@ -48,8 +51,9 @@ def all_statements():
         for s in statements
     ])
 
-# Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
-    return render_template('add_student.html')
+@app.route("/vragenlijst")
+def vragenlijst():
+    return render_template('vragenlijst.html')
 
 if __name__ == '__main__':
     with app.app_context():

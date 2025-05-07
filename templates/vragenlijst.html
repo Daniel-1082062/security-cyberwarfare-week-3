@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vragenlijst</title>
+</head>
+<body>
+    <main>
+        <div class="content">
+            <div id="student-info">
+                <label>Studentnummer: <input type="text" id="student-number" /></label>
+                <button onclick="startSurvey()">Start</button>
+            </div>
+
+            <div id="question-box" style="display:none;">
+                <h2 id="question-number"></h2>
+                <button id="choice1" onclick="submitAnswer(1)"></button>
+                <button id="choice2" onclick="submitAnswer(2)"></button>
+            </div>
+
+            <div id="endscreen" style="display:none;">
+                <h2>Bedankt! Je hebt alle stellingen ingevuld.</h2>
+            </div>
+        </div>
+    </main>
+
+ <script>
+
+        let studentNumber = null;
+
+        function startSurvey() {
+            studentNumber = document.getElementById("student-number").value;
+            loadNextStatement();
+        }
+
+        function loadNextStatement() {
+            fetch(`/api/student/${studentNumber}/statement`)
+                .then(response => {
+                    if (response.status === 404) {
+                        document.getElementById("endscreen").style.display = "block";
+                        document.getElementById("question-box").style.display = "none";
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    document.getElementById("question-box").style.display ="block";
+                    document.getElementById("question-number").innerText = 'Stelling ${data.statement_number}';
+                    document.getElementById("choice1").innerText = data.statement_choices[0].choice_text;
+                    document.getElementById("choice2").innerText = data.statement_choices[1].choice_text;
+                });
+        }
+
+        function submitAnswer(choiceNumber) {
+            const statementNumber = document.getElementById("question-number").innerText.split(" ")[1];
+
+              fetch(`/api/student/${studentNumber}/statement/${statementNumber}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ choice_number: parseInt(choiceNumber) })
+        })
+                .then(res => res.json())
+                .then(() => {
+                    loadNextStatement();
+            });
+        }
+ </script>
+
+
+</body>
+</html>
