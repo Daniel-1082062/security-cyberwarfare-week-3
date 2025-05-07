@@ -20,3 +20,8 @@ Installeer de packages eenvoudig door de volgende command in te voeren in de ter
    pip install -r requirements.txt
    ```
 
+Importeer nu eerst de data door het import_statements.py script te draaien.
+
+```bash
+    python import_statements.py
+```
