@@ -16,7 +16,7 @@ class Statement(db.Model):
 # Maak de kolommen voor de StatementChoice tabel in de database
 class StatementChoice(db.Model):
     choice_id = db.Column(db.Integer, primary_key=True)
-    statement_id = db.Column(db.Integer, db.foreign_key('statement_id'), nullable=False)
+    statement_id = db.Column(db.Integer, db.ForeignKey('statement_id'), nullable=False)
     choice_number = db.Column(db.Integer, nullable=False)
     choice_text = db.Column(db.String(360), nullable=False)
     choice_result = db.Column(db.String(1), nullable=False)

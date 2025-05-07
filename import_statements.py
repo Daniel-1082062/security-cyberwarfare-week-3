@@ -5,7 +5,7 @@ from models import Statement, StatementChoice
 
 # Laad het json bestand in
 with app.app_context():
-    with open 'data/actiontype_statements.json' as f:
+    with open('data/actiontype_statements.json') as f:
         data = json.load(f)
 
 # Check of het statement nummer al in de datbase staat,
