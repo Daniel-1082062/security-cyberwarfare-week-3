@@ -11,12 +11,12 @@ class Student(db.Model):
 class Statement(db.Model):
     statement_id = db.Column(db.Integer, primary_key=True)
     statement_number = db.Column(db.Integer, unique=True, nullable=False)
-    statement_choices = db.relationship('Statement_choice', backref='statement', cascade='all, delete-orphan')
+    statement_choices = db.relationship('StatementChoice', backref='statement', cascade='all, delete-orphan')
 
 # Maak de kolommen voor de StatementChoice tabel in de database
 class StatementChoice(db.Model):
     choice_id = db.Column(db.Integer, primary_key=True)
-    statement_id = db.Column(db.Integer, db.ForeignKey('statement_id'), nullable=False)
+    statement_id = db.Column(db.Integer, db.ForeignKey('statement.statement_id'), nullable=False)
     choice_number = db.Column(db.Integer, nullable=False)
     choice_text = db.Column(db.String(360), nullable=False)
     choice_result = db.Column(db.String(1), nullable=False)

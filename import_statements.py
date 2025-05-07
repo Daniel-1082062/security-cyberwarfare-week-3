@@ -11,10 +11,10 @@ with app.app_context():
 # Check of het statement nummer al in de datbase staat,
         for item in data:
             number = item['statement_number']
-            existing = Statement.query.filter_by(number=number).first()
+            existing = Statement.query.filter_by(statement_number=number).first()
             # Als het statement nummer nog niet in de database staat, wordt er een statement met dit nummer aangemaakt en wordt er via flush automatisch een id aan het statement object toegevoegd.
             if not existing:
-                statement = Statement(number=number)
+                statement = Statement(statement_number=number)
                 db.session.add(statement)
                 db.session.flush()
                 #Voegt voor elke statement choice een object toe
@@ -29,3 +29,6 @@ with app.app_context():
 
         db.session.commit()
         print(f"{len(data)} stellingen geïmporteerd.")
+
+        s = Statement.query.first()
+        print(s.statement_choices)
