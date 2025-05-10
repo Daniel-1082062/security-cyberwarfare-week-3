@@ -30,12 +30,12 @@
  <script>
 
         let studentNumber = null;
-
+        // Haal het studentnummer uit het input veld en start de survey wanneer op de 'start' knop geklikt wordt
         function startSurvey() {
             studentNumber = document.getElementById("student-number").value;
             loadNextStatement();
         }
-
+        // GET request naar flask. Zodra er een response is wordt een JavaScript object gemaakt van de JSON. ALs de response een 404 is wordt het eindscherm getoond, aangezien dit betekent dat er geen statements meer over zijn.
         function loadNextStatement() {
             fetch(`/api/student/${studentNumber}/statement`)
                 .then(response => {
@@ -46,19 +46,20 @@
                     }
                     return response.json();
                 })
+                // Zodra de response omgezet is naar een JavaScript object, gebruik de data en voeg deze in de html.
                 .then(data => {
                     if (!data) return;
-
+                    console.log(data);
                     document.getElementById("question-box").style.display ="block";
-                    document.getElementById("question-number").innerText = 'Stelling ${data.statement_number}';
+                    document.getElementById("question-number").innerText = `Stelling ${data.statement_number}`;
                     document.getElementById("choice1").innerText = data.statement_choices[0].choice_text;
                     document.getElementById("choice2").innerText = data.statement_choices[1].choice_text;
                 });
         }
-
+        // Haal het nummer van de stelling uit de h2
         function submitAnswer(choiceNumber) {
             const statementNumber = document.getElementById("question-number").innerText.split(" ")[1];
-
+              // Stuur de gemaakte keuze naar het bijbehorende statement en laad daarna het volgende statement
               fetch(`/api/student/${studentNumber}/statement/${statementNumber}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -53,7 +53,36 @@ def all_statements():
 
 @app.route("/vragenlijst")
 def vragenlijst():
-    return render_template('vragenlijst.html')
+        return render_template('vragenlijst.html')
+
+@app.route('/api/student/<int:student_number>/statement', methods=['GET'])
+def next_statement(student_number):
+    student = Student.query.filter_by(student_number=student_number).first()
+    if not student:
+        return jsonify({'Error': 'Student not found'}), 404
+
+    answered_statements = [choice.statement_id for choice in student.student_choices]
+
+    next_statement = Statement.query \
+    .filter(~Statement.statement_id.in_(answered_statements)) \
+    .order_by(Statement.statement_number) \
+    .first()
+
+    if not next_statement:
+        return jsonify({'Error': 'All statements have been answered'}), 404
+
+    response = {
+        'statement_number': next_statement.statement_number,
+        'statement_choices': [
+            {
+                'choice_number': choice.choice_number,
+                'choice_text:': choice.choice_text
+            }
+            for choice in next_statement.statement_choices
+        ]
+    }
+    print(next_statement.statement_choices)
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     with app.app_context():

@@ -11,6 +11,7 @@ class Student(db.Model):
 class Statement(db.Model):
     statement_id = db.Column(db.Integer, primary_key=True)
     statement_number = db.Column(db.Integer, unique=True, nullable=False)
+
     statement_choices = db.relationship('StatementChoice', backref='statement', cascade='all, delete-orphan')
 
 # Maak de kolommen voor de StatementChoice tabel in de database
@@ -27,5 +28,5 @@ class StudentChoice(db.Model):
     statement_id = db.Column(db.Integer, db.ForeignKey('statement.statement_id'), nullable=False)
     choice_number = db.Column(db.Integer, nullable=False)
 
-    student = db.relationship('Student', backref='student_choice')
-    statement = db.relationship('Statement', backref='student_choice')
+    student = db.relationship('Student', backref='student_choices')
+    statement = db.relationship('Statement', backref='student_choices')
