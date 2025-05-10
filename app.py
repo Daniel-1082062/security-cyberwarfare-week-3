@@ -156,6 +156,11 @@ def student_result(student_number):
     mbti_result += 'J' if mbti_letters['J'] >= mbti_letters['P'] else 'P'
 
     print(mbti_result)
+    return jsonify({
+        "student_number": student_number,
+        "mbti_result": mbti_result,
+        "counts": mbti_letters
+    }), 200
 
 
 if __name__ == '__main__':

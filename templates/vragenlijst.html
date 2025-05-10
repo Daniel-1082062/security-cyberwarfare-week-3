@@ -23,6 +23,10 @@
 
             <div id="endscreen" style="display:none;">
                 <h2>Bedankt! Je hebt alle stellingen ingevuld.</h2>
+                <div id="result-box" style="display: none;">
+                    <h3>Jouw MBTI-profiel is:</h3>
+                    <p id="mbti-result"></p>
+                </div>
             </div>
         </div>
     </main>
@@ -42,6 +46,7 @@
                     if (response.status === 404) {
                         document.getElementById("endscreen").style.display = "block";
                         document.getElementById("question-box").style.display = "none";
+                        getResult();
                         return;
                     }
                     return response.json();
@@ -69,6 +74,15 @@
                 .then(() => {
                     loadNextStatement();
             });
+        }
+
+        function getResult() {
+            fetch(`/api/student/${studentNumber}/result`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("result-box").style.display = "block";
+                    document.getElementById("mbti-result").innerText = `${data.mbti_result}`;
+                });
         }
  </script>
 
