@@ -64,9 +64,9 @@ def next_statement(student_number):
     answered_statements = [choice.statement_id for choice in student.student_choices]
 
     next_statement = Statement.query \
-    .filter(~Statement.statement_id.in_(answered_statements)) \
-    .order_by(Statement.statement_number) \
-    .first()
+        .filter(~Statement.statement_id.in_(answered_statements)) \
+        .order_by(Statement.statement_number) \
+        .first()
 
     if not next_statement:
         return jsonify({'Error': 'All statements have been answered'}), 404
@@ -76,7 +76,7 @@ def next_statement(student_number):
         'statement_choices': [
             {
                 'choice_number': choice.choice_number,
-                'choice_text:': choice.choice_text
+                'choice_text': choice.choice_text
             }
             for choice in next_statement.statement_choices
         ]
