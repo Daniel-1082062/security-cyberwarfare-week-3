@@ -139,6 +139,25 @@ def student_result(student_number):
     # selecteer alle gegeven antwoorden van de student
     given_choices = student.student_choices
 
+    # Een dictionary met alle letters die horen bij de keuzes
+    mbti_letters = {'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0}
+
+    # Ga de ingevulde keuze van de specifieke student langs en haal daarvan de data op. Voeg daarna 1 punt toe aan de letter die hoort bij de gemaakte keuze. Doe dit voor elke gemaakte keuze.
+    for choice in given_choices:
+        response = StatementChoice.query.filter_by(statement_id=choice.statement_id, choice_number=choice.choice_number).first()
+        print(response.choice_result)
+        mbti_letters[response.choice_result] += 1
+
+    # Lege result, deze wordt ingevuld door bij elke 2 letters te checken of 1 letter meer voorkomt dan de ander. Zo ja? Voeg die letter toe aan de string mbti_result. Zo niet? Voeg de andere letter toe.
+    mbti_result = ""
+    mbti_result += 'E' if mbti_letters['E'] >= mbti_letters['I'] else 'I'
+    mbti_result += 'S' if mbti_letters['S'] >= mbti_letters['N'] else 'N'
+    mbti_result += 'T' if mbti_letters['T'] >= mbti_letters['F'] else 'F'
+    mbti_result += 'J' if mbti_letters['J'] >= mbti_letters['P'] else 'P'
+
+    print(mbti_result)
+
+
 if __name__ == '__main__':
     with app.app_context():
         # import os
