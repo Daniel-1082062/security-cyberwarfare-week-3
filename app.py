@@ -130,6 +130,14 @@ def submit_choice(student_number, statement_number):
     return jsonify({"result": "ok"}), 200
 
 @app.route('/api/student/<int:student_number>/result', methods=['GET'])
+# check of het studentnummer bestaat en haal de gegevens van de student op
+def student_result(student_number):
+    student = Student.query.filter_by(student_number=student_number).first()
+    if not student:
+        result = jsonify({"Error": "Student not found"}), 404
+        return result
+    # selecteer alle gegeven antwoorden van de student
+    given_choices = student.student_choices
 
 if __name__ == '__main__':
     with app.app_context():
