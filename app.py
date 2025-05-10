@@ -84,6 +84,9 @@ def next_statement(student_number):
     print(next_statement.statement_choices)
     return jsonify(response), 200
 
+@app.route('api/student/<int:student_number>/statement/<int:statement_number>', methods=['POST'])
+    def submit_choice(student_number, statement_number):
+
 if __name__ == '__main__':
     with app.app_context():
         # import os
