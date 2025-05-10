@@ -15,7 +15,7 @@ def index():
     return 'Hello World!'
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
-from models import Student, Statement, StatementChoice
+from models import Student, Statement, StatementChoice, StudentChoice
 
 # Route om een nieuwe student toe te voegen
 @app.route("/add_student", methods=['GET', 'POST'])
@@ -84,8 +84,52 @@ def next_statement(student_number):
     print(next_statement.statement_choices)
     return jsonify(response), 200
 
-@app.route('api/student/<int:student_number>/statement/<int:statement_number>', methods=['POST'])
-    def submit_choice(student_number, statement_number):
+# @app.route('api/student/<int:student_number>/statement/<int:statement_number>', methods=['POST'])
+#     def submit_choice(student_number, statement_number):
+
+@app.route('/api/student/<int:student_number>/statement/<int:statement_number>', methods=['POST'])
+def submit_choice(student_number, statement_number):
+    data = request.get_json()
+    if not data or 'choice_number' not in data:
+        return jsonify({"Error": "Missing 'choice_number' in request"}), 400
+
+    choice_number = data['choice_number']
+
+    student = Student.query.filter_by(student_number=student_number).first()
+    if not student:
+        return jsonify({"Error": "Student not found"}), 404
+
+    statement = Statement.query.filter_by(statement_number=statement_number).first()
+    if not statement:
+        return jsonify({"Error": "Statement not found"}), 404
+
+    choice = StatementChoice.query.filter_by(
+        statement_id=statement.statement_id,
+        choice_number=choice_number
+    ).first()
+    if not choice:
+        return jsonify({"Error": "Choice not found for this statement"}), 404
+
+    existing = StudentChoice.query.filter_by(
+        student_id=student.student_id,
+        statement_id=statement.statement_id
+    ).first()
+
+    if existing:
+        existing.choice_number = choice_number
+    else:
+        new_choice = StudentChoice(
+            student_id=student.student_id,
+            statement_id=statement.statement_id,
+            choice_number=choice_number
+        )
+        db.session.add(new_choice)
+
+    db.session.commit()
+
+    return jsonify({"result": "ok"}), 200
+
+@app.route('/api/student/<int:student_number>/result', methods=['GET'])
 
 if __name__ == '__main__':
     with app.app_context():
