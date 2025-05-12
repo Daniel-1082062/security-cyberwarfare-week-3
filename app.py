@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from db import db
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -15,7 +15,7 @@ def index():
     return 'Hello World!'
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
-from models import Student, Statement, StatementChoice, StudentChoice
+from models import Student, Statement, StatementChoice, StudentChoice, Teacher
 
 # Route om een nieuwe student toe te voegen
 @app.route("/add_student", methods=['GET', 'POST'])
@@ -162,6 +162,22 @@ def student_result(student_number):
         "counts": mbti_letters
     }), 200
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        docent_username = request.form['docent_username']
+        docent_password = request.form['docent_pass']
+        docent = Teacher.query.filter_by(teacher_username=docent_username).first()
+        if docent is None:
+            return "Gebruiker niet gevonden"
+        if not docent.check_password(docent_password):
+            return "Wachtwoord onjuist"
+        session['teacher_id'] = docent.teacher_id
+        return redirect(url_for("admin_dashboard"))
+    return render_template("login.html")
+@app.route('/admin', methods=['GET'])
+def admin_dashboard():
+    return render_template('admin.html')
 
 if __name__ == '__main__':
     with app.app_context():
