@@ -57,20 +57,25 @@ def vragenlijst():
 
 @app.route('/api/student/<int:student_number>/statement', methods=['GET'])
 def next_statement(student_number):
+    # Vraag de student op aan de hand van het studentnummer. Is de student niet te vinden? Geef een error.
     student = Student.query.filter_by(student_number=student_number).first()
     if not student:
         return jsonify({'Error': 'Student not found'}), 404
 
+    # Maak een list met de statements die de student al beantwoord heeft door alle statement_id's te verzamelen uit de tabel met gemaakte keuzes van de student.
     answered_statements = [choice.statement_id for choice in student.student_choices]
 
+    # Vraag het eerstvolgende onbeantwoorde statement op door te filteren op 'komt niet voor in de list 'answered_statements'.
     next_statement = Statement.query \
         .filter(~Statement.statement_id.in_(answered_statements)) \
         .order_by(Statement.statement_number) \
         .first()
 
+    # Komt er geen resultaat uit het oprvragen van de eerstvolgende statement? Geef een 404 response en laat weten dat alle statements al beantwoord zijn.
     if not next_statement:
         return jsonify({'Error': 'All statements have been answered'}), 404
 
+    # Maak een dictionary met de gegevens van het opgevraagde statement. Convert deze daarna met jsonify naar JSON en geef dit als response samen met 200 (OK).
     response = {
         'statement_number': next_statement.statement_number,
         'statement_choices': [
@@ -89,34 +94,43 @@ def next_statement(student_number):
 
 @app.route('/api/student/<int:student_number>/statement/<int:statement_number>', methods=['POST'])
 def submit_choice(student_number, statement_number):
+    # Kijk of er een choice_number in de opgeroepen data aanwezig is. Zo niet: Geef een error.
     data = request.get_json()
     if not data or 'choice_number' not in data:
         return jsonify({"Error": "Missing 'choice_number' in request"}), 400
 
     choice_number = data['choice_number']
 
+    # Check of er een student met een studentnummer bestaat en koppel deze aan student, zo niet, geef een error.
     student = Student.query.filter_by(student_number=student_number).first()
     if not student:
-        return jsonify({"Error": "Student not found"}), 404
+        return jsonify({"Error":
+                            "Student not found"}), 404
 
+    # Check of er een statement met het statementnummer bestaat en koppel deze aan statement. Zo niet, geef een error.
     statement = Statement.query.filter_by(statement_number=statement_number).first()
     if not statement:
         return jsonify({"Error": "Statement not found"}), 404
 
+    # Zoek de gemaakte keuze op aan de hand van het statement_id en het choice_number en koppel deze data aan choice.
     choice = StatementChoice.query.filter_by(
         statement_id=statement.statement_id,
         choice_number=choice_number
     ).first()
+    # Is de gemaakte keuze niet te vinden? Geef dan een error.
     if not choice:
         return jsonify({"Error": "Choice not found for this statement"}), 404
 
+    # Check of de student de vraag al een keer eerder beantwoord heeft.
     existing = StudentChoice.query.filter_by(
         student_id=student.student_id,
         statement_id=statement.statement_id
     ).first()
 
+    # Heeft de student de vraag al een keer eerder beantwoord? Overschrijf dan de eerder gemaakt ekeuze.
     if existing:
-        existing.choice_number = choice_number
+        existing.choice_number = choice_number\
+    # Heeft de student de vraag nog niet eerder beantwoord? Maak dan een nieuwe entry in de tabel met gemaakte keuzes.
     else:
         new_choice = StudentChoice(
             student_id=student.student_id,
@@ -125,8 +139,8 @@ def submit_choice(student_number, statement_number):
         )
         db.session.add(new_choice)
 
+    # Commit de nieuwe data naar de database en geef een 200 response (OK!)
     db.session.commit()
-
     return jsonify({"result": "ok"}), 200
 
 @app.route('/api/student/<int:student_number>/result', methods=['GET'])
@@ -177,7 +191,12 @@ def login():
     return render_template("login.html")
 @app.route('/admin', methods=['GET'])
 def admin_dashboard():
-    return render_template('admin.html')
+    # Controleer of er een teacher_id in de session is, zo ja lijd door naar de admin pagina
+    if session.get('teacher_id'):
+        return render_template('admin.html')
+    # Zit er geen teacher_id in de session? Lijd dan door naar de loginpagina.
+    else:
+        return redirect(url_for('login'))
 
 if __name__ == '__main__':
     with app.app_context():
