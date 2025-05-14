@@ -187,7 +187,7 @@ def login():
         if not docent.check_password(docent_password):
             return "Wachtwoord onjuist"
         session['teacher_id'] = docent.teacher_id
-        return redirect(url_for("admin_dashboard"))
+        return redirect(url_for("beheer_dashboard"))
     return render_template("login.html", error=request.args.get('error'))
 
 @app.route('/beheer', methods=['GET'])
@@ -196,7 +196,7 @@ def beheer_dashboard():
     if session.get('teacher_id'):
         docent = Teacher.query.get(session['teacher_id'])
         is_admin = docent.is_admin
-        return render_template('beheer.html', docent=docent)
+        return render_template('beheer.html', docent=docent, is_admin=is_admin)
     # Zit er geen teacher_id in de session? Leid dan door naar de loginpagina.
     else:
         return redirect(url_for('login'))
@@ -248,6 +248,29 @@ def toggle_admin(docent_id):
     docent = Teacher.query.get(int(docent_id))
     # Maak de nieuwe waarde van is_admin het omgekeerde van de huidige waarde van is_admin
     docent.is_admin = not docent.is_admin
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/add_teacher', methods=['POST'])
+def add_teacher():
+    # Check of de gebruiker een docent is
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(teacher_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+    docent_name = request.form['docent_name']
+    docent_username = request.form['docent_username']
+    docent_password = request.form['docent_password']
+    is_admin = 'is_admin' in request.form
+
+    new_teacher = Teacher(teacher_name=docent_name, teacher_username=docent_username, is_admin=is_admin)
+    new_teacher.set_password(docent_password)
+    db.session.add(new_teacher)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
