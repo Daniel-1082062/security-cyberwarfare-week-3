@@ -194,10 +194,21 @@ def admin_dashboard():
     # Controleer of er een teacher_id in de session is, zo ja lijd door naar de admin pagina
     if session.get('teacher_id'):
         docent = Teacher.query.get(session['teacher_id'])
+        is_admin = docent.is_admin
         return render_template('admin.html', docent=docent)
     # Zit er geen teacher_id in de session? Lijd dan door naar de loginpagina.
     else:
         return redirect(url_for('login'))
+
+@app.route('/admin/docentbeheer', methods=['POST', 'GET'])
+def admin_docentbeheer():
+    is_teacher = session.get('teacher_id')
+    docent = Teacher.query.get(session['teacher_id'])
+    is_admin = docent.is_admin
+    if (is_teacher) and (is_admin):
+        return render_template ('docentbeheer.html', docent=docent)
+    else:
+        return jsonify({"Error": "Geen toegang"}), 403
 
 if __name__ == '__main__':
     with app.app_context():
