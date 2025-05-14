@@ -232,6 +232,25 @@ def admin_dashboard():
     else:
         return render_template ('admin.html', docent=docent, docenten=docenten)
 
+@app.route('/admin/toggle_admin/<docent_id>', methods=['POST'])
+def toggle_admin(docent_id):
+    # Check of de gebruiker een docent is
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(teacher_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+    # Haal de docent op
+    docent = Teacher.query.get(int(docent_id))
+    # Maak de nieuwe waarde van is_admin het omgekeerde van de huidige waarde van is_admin
+    docent.is_admin = not docent.is_admin
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
 if __name__ == '__main__':
     with app.app_context():
         # import os
