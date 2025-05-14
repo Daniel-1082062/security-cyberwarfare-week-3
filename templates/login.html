@@ -9,6 +9,9 @@
 </head>
 <body>
     <main>
+        {% if request.args.get('error') == 'geen_toegang' %}
+  <p style="color:red;">Je hebt geen toegang tot deze pagina.</p>
+{% endif %}
         <form action="/login" method="post">
             <label>Gebruikersnaam: <input name="docent_username" type="text" id="docent_user" required></label>
             <br>
