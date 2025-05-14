@@ -24,12 +24,35 @@
                 <td>{% if d.is_admin %}Ja{% else %}Nee {% endif %}</td>
                 <td>
                     <form action="/admin/toggle_admin/{{ d.teacher_id }}" method="post">
-                        <input type="checkbox", name="is_admin" onchange="this.form.submit()" {% if d.is_admin %} checked {% endif %}>
+<!--                        onchange="this.form.submit()"-->
+                        <input type="checkbox" name="is_admin" {% if d.is_admin %} checked {% endif %} onchange="handleAdminToggle(this, {{ d.teacher_id }}, {{ docent.teacher_id }})">
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+        <form action="/admin/add_teacher" method="post">
+            <label>Naam: <input name="docent_name" type="text" id="docent_name" required></label>
+            <label>Gebruikersnaam: <input name="docent_username" type="text" id="docent_user" required></label>
+            <label>Wachtwoord: <input name="docent_pass" type="text" id = "docent_pass" required></label>
+            <label>Admin: <input name="is_admin" type="checkbox" id = "is_admin"></label>
+            <button type="submit">Toevoegen</button>
+        </form>
+
+    <!-- Wanneer adminrechten ontnomen worden: Check of de huidige gebruiker op het punt staat om zijn eigen rechten te ontnemen. Zo ja, geef een waarschuwing.-->
+    <script>
+        function handleAdminToggle(checkbox, targetId, currentUserId) {
+            if (targetId === currentUserId) {
+                const confirmChange = confirm("Weet je zeker dat je je eigen adminrechten wil verwijderen?");
+                if (!confirmChange) {
+                    checkbox.checked = true;
+                    return;
+                }
+            }
+            checkbox.form.submit();
+        }
+    </script>
 </body>
 </html>
