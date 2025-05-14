@@ -193,7 +193,8 @@ def login():
 def admin_dashboard():
     # Controleer of er een teacher_id in de session is, zo ja lijd door naar de admin pagina
     if session.get('teacher_id'):
-        return render_template('admin.html')
+        docent = Teacher.query.get(session['teacher_id'])
+        return render_template('admin.html', docent=docent)
     # Zit er geen teacher_id in de session? Lijd dan door naar de loginpagina.
     else:
         return redirect(url_for('login'))
