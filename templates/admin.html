@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Admin</title>
+</head>
+<body>
+    <h1>Welkom {{ docent.teacher_name }} op het adminpaneel.</h1>
+
+    <table>
+        <thead>
+            <th>Naam</th>
+            <th>Gebruikersnaam</th>
+            <th>Admin?</th>
+        </thead>
+        <tbody>
+            {% for d in docenten %}
+            <tr>
+                <td>{{ d.teacher_name }}</td>
+                <td>{{ d.teacher_username }}</td>
+                <td>{% if d.is_admin %}Ja{% else %}Nee {% endif %}</td>
+                <td>
+                    <form action="/admin/toggle_admin/{{ d.teacher_id }}" method="post">
+                        <input type="checkbox", name="is_admin" onchange="this.form.submit()" {% if d.is_admin %} checked {% endif %}>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
