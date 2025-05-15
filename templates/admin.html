@@ -28,6 +28,12 @@
                         <input type="checkbox" name="is_admin" {% if d.is_admin %} checked {% endif %} onchange="handleAdminToggle(this, {{ d.teacher_id }}, {{ docent.teacher_id }})">
                     </form>
                 </td>
+                <td>
+                    <!-- Knop om een docent te verwijderen, inclusief een check om te bevestigen -->
+                    <form action="/admin/delete_teacher/{{ d.teacher_id }}" onsubmit="return confirm('Weet je zeker dat je deze docent wil verwijderen?')">
+                          <button type="submit">Verwijderen</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

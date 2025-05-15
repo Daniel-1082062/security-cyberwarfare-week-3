@@ -263,16 +263,43 @@ def add_teacher():
     if not docent_self or not docent_self.is_admin:
         return "Geen toegang", 403
 
+    # Haal de waardes uit het formulier op
     docent_name = request.form['docent_name']
     docent_username = request.form['docent_username']
     docent_password = request.form['docent_password']
     is_admin = 'is_admin' in request.form
 
+    # Maak een nieuwe entry in de tabel met docenten met de opgehaalde en maak een gehashed wachtwoord met het ingevulde wachtwoord uit het formulier
     new_teacher = Teacher(teacher_name=docent_name, teacher_username=docent_username, is_admin=is_admin)
     new_teacher.set_password(docent_password)
+
+    # Voeg de nieuwe docent toe aan de database en sla de database op
     db.session.add(new_teacher)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_teacher/<teacher_id>', methods=['GET', 'POST'])
+def delete_teacher(teacher_id):
+    # Check of de gebruiker een docent is
+    current_user_id = session.get('teacher_id')
+    if not current_user_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(current_user_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+
+    delete_teacher = Teacher.query.get(int(teacher_id))
+
+    if delete_teacher.teacher_id == docent_self.teacher_id:
+        return "Je kunt jezelf niet verwijderen", 403
+
+    db.session.delete(delete_teacher)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
 
 if __name__ == '__main__':
     with app.app_context():
