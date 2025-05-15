@@ -25,7 +25,13 @@
                     <td>{{ s.student_number }}</td>
                     <td>{{ s.student_class }}</td>
                     <td>{{ s.actiontype or "_" }}</td>
-                    <td>-</td>
+                    <td>
+                        {% if s.student_choices %}
+                            {{ s.student_choices | sort(attribute='timestamp') | last.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     <td>
                     <!-- Knop om een student te verwijderen, inclusief een check om te bevestigen -->
                     <form action="/beheer/student/delete/{{ s.student_id }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze student wil verwijderen?')">

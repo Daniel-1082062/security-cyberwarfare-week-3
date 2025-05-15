@@ -1,5 +1,6 @@
 from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, UTC
 
 # Maak de kolommen aan voor de Student tabel in de database
 class Student(db.Model):
@@ -29,6 +30,7 @@ class StudentChoice(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('student.student_id'), nullable=False)
     statement_id = db.Column(db.Integer, db.ForeignKey('statement.statement_id'), nullable=False)
     choice_number = db.Column(db.Integer, nullable=False)
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), nullable=False)
 
     student = db.relationship('Student', backref='student_choices')
     statement = db.relationship('Statement', backref='student_choices')
