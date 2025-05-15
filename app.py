@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from db import db
 from flask_migrate import Migrate
+from datetime import datetime, timedelta, timezone
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -315,6 +316,13 @@ def studenten_dashboard():
 
     studenten = Student.query.all()
     return render_template('studentenbeheer.html', studenten=studenten)
+
+@app.template_filter('localtime')
+def localtime_filter(utc_dt):
+    if utc_dt is None:
+        return ''
+    # Verander de tijd naar GMT+2
+    return (utc_dt + timedelta(hours=2)).strftime('%d-%m-%Y %H:%M')
 
 @app.route('/beheer/student/delete/<int:student_id>', methods=['POST'])
 def delete_student(student_id):

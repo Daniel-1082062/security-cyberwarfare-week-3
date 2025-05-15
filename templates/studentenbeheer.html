@@ -27,7 +27,7 @@
                     <td>{{ s.actiontype or "_" }}</td>
                     <td>
                         {% if s.student_choices %}
-                            {{ s.student_choices | sort(attribute='updated_at') | last.updated_at.strftime('%d-%m-%Y %H:%M') }}
+                            {{ (s.student_choices | sort(attribute='updated_at') | last).updated_at | localtime }}
                         {% else %}
                             -
                         {% endif %}
