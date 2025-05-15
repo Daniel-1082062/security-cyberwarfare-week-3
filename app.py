@@ -361,7 +361,6 @@ def delete_student(student_id):
     return redirect(url_for('studenten_dashboard'))
 
 
-
 if __name__ == '__main__':
     # with app.app_context():
         # import os

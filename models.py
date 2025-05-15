@@ -10,6 +10,9 @@ class Student(db.Model):
     student_class = db.Column(db.String(2), nullable=False)
     actiontype = db.Column(db.String(4))
 
+    team_id = db.Column(db.Integer, db.ForeignKey('team.team_id', name='fk_student_team'), nullable=True)
+    team = db.relationship('Team', backref='students')
+
 # Maak de klolommen aan voor de Statement tabel in de database
 class Statement(db.Model):
     statement_id = db.Column(db.Integer, primary_key=True)
@@ -50,3 +53,9 @@ class Teacher(db.Model):
     def check_password(self, password):
         return check_password_hash(self.teacher_password_hash, password)
 
+class Team(db.Model):
+    __tablename__ = 'team'
+    team_id = db.Column(db.Integer, primary_key=True)
+    team_name = db.Column(db.String(120), unique=True, nullable=False)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('teacher.teacher_id'))
+    created_by = db.relationship('Teacher', backref='teams')
