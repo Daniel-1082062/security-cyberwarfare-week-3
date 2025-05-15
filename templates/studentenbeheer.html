@@ -9,6 +9,17 @@
 </head>
 <body>
     <main>
+        <h3>Nieuwe student toevoegen</h3>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <form action="/beheer/student/toevoegen" method="POST">
+            <label>Studentnummer: <input type="text" name="student_number" required></label><br>
+            <label>Naam: <input type="text" name="student_name" required></label><br>
+            <label>Klas: <input type="text" name="student_class" required></label><br>
+            <button type="submit">Toevoegen</button>
+        </form>
+
         <table>
             <thead>
                 <th>Naam</th>

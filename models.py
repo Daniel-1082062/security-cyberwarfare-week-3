@@ -8,6 +8,7 @@ class Student(db.Model):
     student_number = db.Column(db.String(7), unique=True, nullable=False)
     student_name = db.Column(db.String(120), nullable=False)
     student_class = db.Column(db.String(2), nullable=False)
+    actiontype = db.Column(db.String(4))
 
 # Maak de klolommen aan voor de Statement tabel in de database
 class Statement(db.Model):

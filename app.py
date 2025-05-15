@@ -20,24 +20,35 @@ def index():
     return 'Hello World!'
 
 # Route om een nieuwe student toe te voegen
-@app.route("/add_student", methods=['GET', 'POST'])
+@app.route("/beheer/student/toevoegen", methods=['GET', 'POST'])
 def add_student():
-    # Als de method POST is, maak een nieuwe rij in de tabel met als data de gegevens die in het formulier zijn ingevuld
-    if request.method == 'POST':
-        # definieer de waardes die in de kolommen moeten komen te staan
-        student_number = request.form['student_number']
-        name = request.form['name']
-        class_name = request.form['class_name']
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
 
-        # Maak een nieuwe rij in de tabel met de waardes die hierboven gedefinieerd zijn.
-        new_student = Student(student_number=student_number, name=name, class_name=class_name)
-        # Voeg de rij toe aan de database
-        db.session.add(new_student)
-        db.session.commit()
-        return redirect(url_for('index'))
+    docent = Teacher.query.get(teacher_id)
+    if not docent or not docent.is_admin:
+        return "Geen toegang", 403
 
-    # Als de method GET is, laat de pagina zien waarop je een nieuwe student kunt toevoegen
-    return render_template('add_student.html')
+    # definieer de waardes die in de kolommen moeten komen te staan
+    student_number = request.form['student_number']
+    student_name = request.form['student_name']
+    student_class = request.form['student_class']
+
+    existing = Student.query.filter_by(student_number=student_number).first()
+    if existing:
+        # return "Studentnummer bestaat al", 400
+        error = "Studentnummer bestaat al."
+        studenten = Student.query.all()
+        return render_template("studentenbeheer.html", studenten=studenten, error=error)
+
+    # Maak een nieuwe rij in de tabel met de waardes die hierboven gedefinieerd zijn.
+    new_student = Student(student_number=student_number, student_name=student_name, student_class=student_class)
+    # Voeg de rij toe aan de database
+    db.session.add(new_student)
+    db.session.commit()
+    return redirect(url_for('studenten_dashboard'))
+
 
 @app.route("/statements")
 def all_statements():
@@ -170,6 +181,10 @@ def student_result(student_number):
     mbti_result += 'S' if mbti_letters['S'] >= mbti_letters['N'] else 'N'
     mbti_result += 'T' if mbti_letters['T'] >= mbti_letters['F'] else 'F'
     mbti_result += 'J' if mbti_letters['J'] >= mbti_letters['P'] else 'P'
+
+    # Pas de actiontype van de student aan in de database
+    student.actiontype = mbti_result
+    db.session.commit()
 
     print(mbti_result)
     return jsonify({
