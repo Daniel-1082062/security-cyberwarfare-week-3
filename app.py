@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from db import db
+from flask_migrate import Migrate
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -9,13 +10,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
-
-@app.route('/')
-def index():
-    return 'Hello World!'
+migrate = Migrate(app, db)
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
 from models import Student, Statement, StatementChoice, StudentChoice, Teacher
+@app.route('/')
+def index():
+    return 'Hello World!'
 
 # Route om een nieuwe student toe te voegen
 @app.route("/add_student", methods=['GET', 'POST'])
@@ -339,8 +340,8 @@ def delete_student(student_id):
 
 
 if __name__ == '__main__':
-    with app.app_context():
+    # with app.app_context():
         # import os
         # print("DB pad:", os.path.abspath("data/database.db"))
-        db.create_all()
+        # db.create_all()
     app.run(debug=True)
