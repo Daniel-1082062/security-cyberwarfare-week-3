@@ -300,6 +300,43 @@ def delete_teacher(teacher_id):
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/beheer/studenten', methods=['GET'])
+def studenten_dashboard():
+    # Check of de gebruiker een docent is
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(teacher_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+    studenten = Student.query.all()
+    return render_template('studentenbeheer.html', studenten=studenten)
+
+@app.route('/beheer/student/delete/<int:student_id>', methods=['POST'])
+def delete_student(student_id):
+    # Check of de gebruiker een docent is
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en chKnoeck nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(teacher_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+    student = Student.query.get(student_id)
+
+    if not student:
+        return "Student niet gevonden", 404
+
+    db.session.delete(student)
+    db.session.commit()
+    return redirect(url_for('studenten_dashboard'))
+
+
 
 if __name__ == '__main__':
     with app.app_context():
