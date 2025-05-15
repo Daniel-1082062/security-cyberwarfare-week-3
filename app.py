@@ -322,7 +322,7 @@ def delete_student(student_id):
     if not teacher_id:
         return redirect(url_for('login'))
 
-    # Check of de docent een admin is (en chKnoeck nogmaals of de gebruiker een docent is)
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
     docent_self = Teacher.query.get(int(teacher_id))
     if not docent_self or not docent_self.is_admin:
         return "Geen toegang", 403
