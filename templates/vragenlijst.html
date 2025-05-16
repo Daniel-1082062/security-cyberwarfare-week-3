@@ -11,6 +11,8 @@
 <body>
     <main>
         <div class="content">
+            <h3 id="error-h3" style="display:none;"></h3>
+            <a id="vragenlijst-done" style="display:none" href="{{ url_for('vragenlijst') }}">Terug naar start</a>
             <div id="student-info">
                 <div class="student-info-text">
                     <h1>Welkom bij de mbti test</h1>
@@ -36,6 +38,7 @@
                     <h3>Jouw MBTI-profiel is:</h3>
                     <b><em id="mbti-result"></em></b>
                     <p>Wil je de test opnieuw maken? Contacteer dan een beheerder.</p>
+                    <p>Je kunt de pagina nu sluiten.</p>
                 </div>
             </div>
             <a class="admin-login" href="{{ url_for('login') }}">Inloggen voor docenten</a>
@@ -53,27 +56,44 @@
         }
         // GET request naar flask. Zodra er een response is wordt een JavaScript object gemaakt van de JSON. ALs de response een 404 is wordt het eindscherm getoond, aangezien dit betekent dat er geen statements meer over zijn.
         function loadNextStatement() {
-            fetch(`/api/student/${studentNumber}/statement`)
-                .then(response => {
-                    if (response.status === 404) {
-                        document.getElementById("endscreen").style.display = "block";
-                        document.getElementById("question-box").style.display = "none";
-                        getResult();
-                        return;
-                    }
-                    return response.json();
-                })
-                // Zodra de response omgezet is naar een JavaScript object, gebruik de data en voeg deze in de html.
-                .then(data => {
-                    if (!data) return;
-                    // console.log(data);
-                    document.getElementById("student-info").style.display = "none";
-                    document.getElementById("question-box").style.display ="flex";
-                    document.getElementById("question-number").innerText = `${data.student_name}, dit is stelling ${data.statement_number}`;
-                    document.getElementById("choice1").innerText = data.statement_choices[0].choice_text;
-                    document.getElementById("choice2").innerText = data.statement_choices[1].choice_text;
-                });
-        }
+                fetch(`/api/student/${studentNumber}/statement`)
+                    .then(response => {
+                        if (response.status === 404) {
+                            return response.json().then(data => {
+                                if (data.Error === "Student not found") {
+                                    document.getElementById("question-box").style.display = "none";
+                                    document.getElementById("error-h3").style.display = "block";
+                                    document.getElementById("error-h3").innerHTML = "Studentnummer niet gevonden. Controleer het nummer en probeer opnieuw.";
+                                    return null;
+                                } else {
+                                    document.getElementById("endscreen").style.display = "block";
+                                    document.getElementById("question-box").style.display = "none";
+                                    getResult();
+                                    return null;
+                                }
+                            });
+                        }
+
+                        if (response.status === 403) {
+                            document.getElementById("question-box").style.display = "none";
+                            document.getElementById("error-h3").style.display = "block";
+                            document.getElementById("vragenlijst-done").style.display = "block";
+                            document.getElementById("error-h3").innerHTML = "Je hebt de test al voltooid. Je kunt deze maar één keer maken.";
+                            return null;
+                        }
+                        return response.json();
+                    })
+                    // Zodra de response omgezet is naar een JavaScript object, gebruik de data en voeg deze in de html.
+                    .then(data => {
+                        if (!data) return;
+                        // console.log(data);
+                        document.getElementById("student-info").style.display = "none";
+                        document.getElementById("question-box").style.display ="flex";
+                        document.getElementById("question-number").innerText = `${data.student_name}, dit is stelling ${data.statement_number}`;
+                        document.getElementById("choice1").innerText = data.statement_choices[0].choice_text;
+                        document.getElementById("choice2").innerText = data.statement_choices[1].choice_text;
+                    });
+            }
         // Haal het nummer van de stelling uit de h2
         function submitAnswer(choiceNumber) {
             const text = document.getElementById("question-number").innerText;

@@ -25,3 +25,33 @@ Importeer nu eerst de data door het import_statements.py script te draaien.
 ```bash
     python import_statements.py
 ```
+
+Om ook de studenten te importeren, kun je het import_students.py script draaien.
+```bash
+    python import_students.py
+```
+
+# Inloggen als docent
+
+Om in te loggen als docent met adminrechten, kun je de volgende gegevens gebruiken:<br>
+<ul>
+<li>Gebruikersnaam: admin</li>
+<li>Wachtwoord: geheim123</li>
+</ul>
+Wil je inloggen als docent zonder adminrechten?
+<ul>
+<li>Gebruikersnaam: noadmin</li>
+<li>Wachtwoord: geheim123</li>
+</ul>
+
+# Functionaliteiten
+Studenten vullen stellingen in.<br>
+Na afloop verschijnt het MBTI-profiel. Herhalen is niet mogelijk.<br><br>
+Docenten kunnen:
+<ul>
+<li>Studenten beheren</li>
+<li>Teams beheren</li>
+<li>Docenten beheren (alleen als admin)</li>
+<li>Resultaten bekijken en filteren</li>
+<li>Studenten aan teams koppelen</li>
+</ul>

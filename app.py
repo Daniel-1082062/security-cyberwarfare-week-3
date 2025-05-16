@@ -71,6 +71,10 @@ def next_statement(student_number):
     if not student:
         return jsonify({'Error': 'Student not found'}), 404
 
+    # Check of de student al een actiontype heeft, zo ja. Geef een 403 die laat weten dat de test al gemaakt is.
+    if student.actiontype:
+        return jsonify({'Error': 'De test is al voltooid. Het is niet mogelijk deze opnieuw te maken.'}), 403
+
     # Maak een list met de statements die de student al beantwoord heeft door alle statement_id's te verzamelen uit de tabel met gemaakte keuzes van de student.
     answered_statements = [choice.statement_id for choice in student.student_choices]
 
@@ -559,6 +563,11 @@ def bewerk_student(student_id):
         return redirect(url_for('student_details', student_id=student.student_id, saved='1'))
 
     return render_template('student_details.html', student=student, teams=teams, docent=docent)
+
+@app.route('/logout')
+def logout():
+    session.clear()  # Verwijdert alle gegevens uit de sessie
+    return redirect(url_for('login'))
 
 # Helpers
 def get_logged_in_teacher():
