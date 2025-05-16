@@ -31,6 +31,12 @@ Om ook de studenten te importeren, kun je het import_students.py script draaien.
     python import_students.py
 ```
 
+Start vervolgens app.py op. De webapp draait nu op http://localhost:5000 ofwel http://127.0.0.1:5000/
+
+```bash
+    python app.py
+```
+
 # Inloggen als docent
 
 Om in te loggen als docent met adminrechten, kun je de volgende gegevens gebruiken:<br>
@@ -55,3 +61,6 @@ Docenten kunnen:
 <li>Resultaten bekijken en filteren</li>
 <li>Studenten aan teams koppelen</li>
 </ul>
+
+Daniël Eijkel - 1082062<br>
+Mei 2025
