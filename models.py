@@ -39,6 +39,13 @@ class StudentChoice(db.Model):
     student = db.relationship('Student', backref='student_choices')
     statement = db.relationship('Statement', backref='student_choices')
 
+    statement_choice = db.relationship(
+        'StatementChoice',
+        primaryjoin="and_(StatementChoice.statement_id == foreign(StudentChoice.statement_id), "
+                    "StatementChoice.choice_number == foreign(StudentChoice.choice_number))",
+        uselist=False
+    )
+
 # Maak de kolommen voor de docenten tabel in de database
 class Teacher(db.Model):
     teacher_id = db.Column(db.Integer, primary_key=True)
