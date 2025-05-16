@@ -15,6 +15,8 @@ migrate = Migrate(app, db)
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
 from models import Student, Statement, StatementChoice, StudentChoice, Teacher, Team
+
+
 @app.route('/')
 def index():
     return 'Hello World!'
@@ -419,6 +421,21 @@ def add_team():
     db.session.add(new_team)
     db.session.commit()
     return redirect(url_for("teams_dashboard"))
+
+@app.route("/beheer/student/<int:student_id>", methods=["GET"])
+def student_details(student_id):
+    student = Student.query.get(student_id)
+    if not student:
+        return "Student niet gevonden", 404
+    teams = Team.query.all()
+    render_template(student_details.html, student=student, teams=teams)
+
+# Helpers
+def get_logged_in_teacher():
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return None
+    return Teacher.query.get(teacher_id)
 
 if __name__ == '__main__':
     # with app.app_context():
