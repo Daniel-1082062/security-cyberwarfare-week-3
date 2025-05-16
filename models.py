@@ -12,7 +12,7 @@ class Student(db.Model):
 
     team_id = db.Column(db.Integer, db.ForeignKey('team.team_id', name='fk_student_team'), nullable=True)
     team = db.relationship('Team', backref='students')
-    team_assigned_by_id = db.Column(db.Integer, db.ForeignKey('teacher.teacher_id'), nullable=True)
+    team_assigned_by_id = db.Column(db.Integer, db.ForeignKey('teacher.teacher_id', name='fk_student_team_assigned_by'), nullable=True)
     team_assigned_by = db.relationship('Teacher', foreign_keys=[team_assigned_by_id])
 
 
