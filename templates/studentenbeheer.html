@@ -65,6 +65,7 @@
                 <th>Actiontype</th>
                 <th>Team</th>
                 <th>Laatste datum</th>
+                <th>Details en bewerken</th>
                 <th>Verwijderen</th>
             </thead>
             <tbody>
@@ -75,6 +76,11 @@
                     <td>{{ s.student_class }}</td>
                     <td>{{ s.actiontype or "_" }}</td>
                     <td>{{ s.team.team_name or "_" }}</td>
+                    <td>
+                        <form action="{{ url_for('student_details', student_id=s.student_id) }}">
+                            <button type="submit">Bekijk</button>
+                        </form>
+                    </td>
                     <td>
                         {% if s.student_choices %}
                             {{ (s.student_choices | sort(attribute='updated_at') | last).updated_at | localtime }}
