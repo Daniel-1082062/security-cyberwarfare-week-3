@@ -461,11 +461,18 @@ def add_team():
 
 @app.route("/beheer/student/<int:student_id>", methods=["GET"])
 def student_details(student_id):
+    docent = get_logged_in_teacher()
+
+    # Check of de gebruiker docent is
+    if not docent:
+        return redirect(url_for('login'))
+
     student = Student.query.get(student_id)
     if not student:
         return "Student niet gevonden", 404
+
     teams = Team.query.all()
-    render_template(student_details.html, student=student, teams=teams)
+    return render_template("student_details.html", student=student, teams=teams, docent=docent)
 
 # Helpers
 def get_logged_in_teacher():

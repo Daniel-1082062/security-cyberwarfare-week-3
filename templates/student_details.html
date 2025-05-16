@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Student Details</title>
+</head>
+<body>
+    <h1>Studentenprofiel van {{ student.student_name }}</h1>
+    <p>{{ student.student_number }}</p>
+    <p>{{ student.student_class }}</p>
+    {% if student.actiontype %}
+        <p>Persoonlijkheidstype: {{ student.actiontype }}</p>
+    {% else %}
+        <p><em>Persoonlijkheidstype is nog niet bepaald.</em></p>
+    {% endif %}
+    <h2>Gemaakte keuzes</h2>
+    <ul>
+  {% for choice in student.student_choices %}
+    <li>
+      Stelling {{ choice.statement.statement_number }}:
+      {{ choice.statement_choice.choice_text }}
+    </li>
+  {% endfor %}
+</ul>
+</body>
+</html>

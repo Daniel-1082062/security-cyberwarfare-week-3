@@ -30,6 +30,7 @@
                 <th>Studentnummer</th>
                 <th>Klas</th>
                 <th>Actiontype</th>
+                <th>Team</th>
                 <th>Laatste datum</th>
                 <th>Verwijderen</th>
             </thead>
@@ -40,6 +41,7 @@
                     <td>{{ s.student_number }}</td>
                     <td>{{ s.student_class }}</td>
                     <td>{{ s.actiontype or "_" }}</td>
+                    <td>{{ s.team or "_" }}</td>
                     <td>
                         {% if s.student_choices %}
                             {{ (s.student_choices | sort(attribute='updated_at') | last).updated_at | localtime }}
