@@ -20,6 +20,10 @@
         <button type="submit">Toevoegen</button>
     </form>
     <h2>Teamoverzicht</h2>
+
+    {% if request.args.get('error') == 'team_niet_gevonden' %}
+        <p style="color: red;">Het team dat je probeert te verwijderen bestaat niet.</p>
+    {% endif %}
     <table>
         <thead>
             <tr>

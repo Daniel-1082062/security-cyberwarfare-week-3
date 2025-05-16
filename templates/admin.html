@@ -9,6 +9,24 @@
 </head>
 <body>
     <h1>Welkom {{ docent.teacher_name }} op het adminpaneel.</h1>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form action="/admin/add_teacher" method="post">
+        <label>Naam: <input name="docent_name" type="text" id="docent_name" required></label>
+        <label>Gebruikersnaam: <input name="docent_username" type="text" id="docent_user" required></label>
+        <label>Wachtwoord: <input name="docent_password" type="text" id = "docent_password" required></label>
+        <label>Admin: <input name="is_admin" type="checkbox" id = "is_admin"></label>
+        <button type="submit">Toevoegen</button>
+    </form>
+
+    {% if request.args.get('error') == 'geen_self_delete' %}
+        <p style="color:red;">Je kunt jezelf niet verwijderen.</p>
+    {% endif %}
+
+    {% if request.args.get('error') == 'delete_docent_not_found' %}
+        <p style="color:red;">Deze docent is niet gevonden.</p>
+    {% endif %}
 
     <table>
         <thead>
@@ -30,7 +48,7 @@
                 </td>
                 <td>
                     <!-- Knop om een docent te verwijderen, inclusief een check om te bevestigen -->
-                    <form action="/admin/delete_teacher/{{ d.teacher_id }}" onsubmit="return confirm('Weet je zeker dat je deze docent wil verwijderen?')">
+                    <form action="/admin/delete_teacher/{{ d.teacher_id }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze docent wil verwijderen?')">
                           <button type="submit">Verwijderen</button>
                     </form>
                 </td>
@@ -38,14 +56,6 @@
             {% endfor %}
         </tbody>
     </table>
-
-        <form action="/admin/add_teacher" method="post">
-            <label>Naam: <input name="docent_name" type="text" id="docent_name" required></label>
-            <label>Gebruikersnaam: <input name="docent_username" type="text" id="docent_user" required></label>
-            <label>Wachtwoord: <input name="docent_password" type="text" id = "docent_password" required></label>
-            <label>Admin: <input name="is_admin" type="checkbox" id = "is_admin"></label>
-            <button type="submit">Toevoegen</button>
-        </form>
 
     <!-- Wanneer adminrechten ontnomen worden: Check of de huidige gebruiker op het punt staat om zijn eigen rechten te ontnemen. Zo ja, geef een waarschuwing.-->
     <script>

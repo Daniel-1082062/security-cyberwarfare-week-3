@@ -20,6 +20,10 @@
             <button type="submit">Toevoegen</button>
         </form>
 
+        {% if request.args.get('error') == 'student_niet_gevonden' %}
+            <p style="color: red;">De student die je probeert te verwijderen bestaat niet.</p>
+        {% endif %}
+
         <table>
             <thead>
                 <th>Naam</th>

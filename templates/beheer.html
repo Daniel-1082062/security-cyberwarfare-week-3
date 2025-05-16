@@ -9,6 +9,9 @@
 </head>
 <body>
 <h1>Welkom {{ docent.teacher_name }} op de docenten homepage.</h1>
+        {% if request.args.get('error') == 'geen_toegang' %}
+  <p style="color:red;">Je hebt geen toegang tot het docenten beheer.</p>
+{% endif %}
 <a href="{{ url_for('studenten_dashboard') }}">Studenten beheren</a>
 <a href="{{ url_for('admin_dashboard') }}">Docenten beheren</a>
 <a href="{{ url_for('teams_dashboard') }}">Teams beheren</a>

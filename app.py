@@ -24,13 +24,12 @@ def index():
 # Route om een nieuwe student toe te voegen
 @app.route("/beheer/student/toevoegen", methods=['GET', 'POST'])
 def add_student():
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
+    docent = get_logged_in_teacher()
+    if not docent:
         return redirect(url_for('login'))
 
-    docent = Teacher.query.get(teacher_id)
-    if not docent or not docent.is_admin:
-        return "Geen toegang", 403
+    if request.method == 'GET':
+        return redirect(url_for('studenten_dashboard'))
 
     # definieer de waardes die in de kolommen moeten komen te staan
     student_number = request.form['student_number']
@@ -222,15 +221,18 @@ def beheer_dashboard():
 
 @app.route('/admin/', methods=['POST', 'GET'])
 def admin_dashboard():
-    # Check of er een teacher_id in de session is
-    teacher_id = session.get('teacher_id')
+    # # Check of er een teacher_id in de session is
+    # teacher_id = session.get('teacher_id')
+    #
+    # # Is er geen teacher_id in de session? Leid terug naar de loginpagina
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # docent = Teacher.query.get('teacher_id')
+    # docent = Teacher.query.get(int(session['teacher_id']))
 
-    # Is er geen teacher_id in de session? Leid terug naar de loginpagina
-    if not teacher_id:
-        return redirect(url_for('login'))
+    docent = get_logged_in_teacher()
 
-    # docent = Teacher.query.get('teacher_id')
-    docent = Teacher.query.get(int(session['teacher_id']))
     docenten = Teacher.query.all()
 
     # Dubbelcheck: zit er geen teacher_id in de session? Geef een error. Doe hetzelfde als de docent geen admin is.
@@ -245,7 +247,7 @@ def admin_dashboard():
         return redirect(url_for('login', error='geen_toegang'))
 
     if not docent.is_admin:
-        return redirect(url_for('login', error='geen_toegang'))
+        return redirect(url_for('beheer_dashboard', error='geen_toegang'))
 
     # Zit er een teacher_id in de session én is de docent een admin? Leid door naar de docentbeheer pagina.
     else:
@@ -253,18 +255,24 @@ def admin_dashboard():
 
 @app.route('/admin/toggle_admin/<docent_id>', methods=['POST'])
 def toggle_admin(docent_id):
-    # Check of de gebruiker een docent is
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
-        return redirect(url_for('login'))
+    # # Check of de gebruiker een docent is
+    # teacher_id = session.get('teacher_id')
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(teacher_id))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(teacher_id))
+    docent_self = get_logged_in_teacher()
+
     if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
+        return redirect(url_for('login', error='geen_toegang'))
 
-    # Haal de docent op
+    # Haal de docent op. Als de teacher niet gevonden wordt, geef een error
     docent = Teacher.query.get(int(docent_id))
+    if not docent:
+        return "Docent niet gevonden", 404
+
     # Maak de nieuwe waarde van is_admin het omgekeerde van de huidige waarde van is_admin
     docent.is_admin = not docent.is_admin
     db.session.commit()
@@ -272,21 +280,31 @@ def toggle_admin(docent_id):
 
 @app.route('/admin/add_teacher', methods=['POST'])
 def add_teacher():
-    # Check of de gebruiker een docent is
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
-        return redirect(url_for('login'))
+    # # Check of de gebruiker een docent is
+    # teacher_id = session.get('teacher_id')
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(teacher_id))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(teacher_id))
+    docent_self = get_logged_in_teacher()
+
     if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
+        return redirect(url_for('login', error='geen_toegang'))
 
     # Haal de waardes uit het formulier op
     docent_name = request.form['docent_name']
     docent_username = request.form['docent_username']
     docent_password = request.form['docent_password']
     is_admin = 'is_admin' in request.form
+
+    # Controleer of gebruikersnaam al bestaat
+    existing = Teacher.query.filter_by(teacher_username=docent_username).first()
+    if existing:
+        error = "Gebruikersnaam bestaat al"
+        docenten = Teacher.query.all()
+        return render_template('admin.html', docent=docent_self, docenten=docenten, error=error)
 
     # Maak een nieuwe entry in de tabel met docenten met de opgehaalde en maak een gehashed wachtwoord met het ingevulde wachtwoord uit het formulier
     new_teacher = Teacher(teacher_name=docent_name, teacher_username=docent_username, is_admin=is_admin)
@@ -297,23 +315,29 @@ def add_teacher():
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/delete_teacher/<teacher_id>', methods=['GET', 'POST'])
+@app.route('/admin/delete_teacher/<teacher_id>', methods=['POST'])
 def delete_teacher(teacher_id):
-    # Check of de gebruiker een docent is
-    current_user_id = session.get('teacher_id')
-    if not current_user_id:
-        return redirect(url_for('login'))
+    # # Check of de gebruiker een docent is
+    # current_user_id = session.get('teacher_id')
+    # if not current_user_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(current_user_id))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(current_user_id))
+    docent_self = get_logged_in_teacher()
+
     if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
+        return redirect(url_for('login', error='geen_toegang'))
 
 
     delete_teacher = Teacher.query.get(int(teacher_id))
 
+    if not delete_teacher:
+        return redirect(url_for('admin_dashboard', error='delete_docent_not_found'))
+
     if delete_teacher.teacher_id == docent_self.teacher_id:
-        return "Je kunt jezelf niet verwijderen", 403
+        return redirect(url_for('admin_dashboard', error='geen_self_delete'))
 
     db.session.delete(delete_teacher)
     db.session.commit()
@@ -321,18 +345,21 @@ def delete_teacher(teacher_id):
 
 @app.route('/beheer/studenten', methods=['GET'])
 def studenten_dashboard():
-    # Check of de gebruiker een docent is
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
+    # # Check of de gebruiker een docent is
+    # teacher_id = session.get('teacher_id')
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(teacher_id))
+
+    docent = get_logged_in_teacher()
+
+    if not docent:
         return redirect(url_for('login'))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(teacher_id))
-    if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
-
     studenten = Student.query.all()
-    return render_template('studentenbeheer.html', studenten=studenten)
+    return render_template('studentenbeheer.html', studenten=studenten, docent=docent)
 
 @app.template_filter('localtime')
 def localtime_filter(utc_dt):
@@ -343,20 +370,23 @@ def localtime_filter(utc_dt):
 
 @app.route('/beheer/student/delete/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
-    # Check of de gebruiker een docent is
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
+    # # Check of de gebruiker een docent is
+    # teacher_id = session.get('teacher_id')
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(teacher_id))
+
+    docent = get_logged_in_teacher()
+
+    if not docent:
         return redirect(url_for('login'))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(teacher_id))
-    if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
-
     student = Student.query.get(student_id)
-
     if not student:
-        return "Student niet gevonden", 404
+        if not student:
+            return redirect(url_for('studenten_dashboard', error='student_niet_gevonden'))
 
     db.session.delete(student)
     db.session.commit()
@@ -364,33 +394,38 @@ def delete_student(student_id):
 
 @app.route("/beheer/teams", methods=["GET"])
 def teams_dashboard():
-    # Check of de gebruiker een docent is
-    teacher_id = session.get('teacher_id')
-    if not teacher_id:
+    # # Check of de gebruiker een docent is
+    # teacher_id = session.get('teacher_id')
+    # if not teacher_id:
+    #     return redirect(url_for('login'))
+    #
+    # # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    # docent_self = Teacher.query.get(int(teacher_id))
+
+    docent = get_logged_in_teacher()
+
+    if not docent:
         return redirect(url_for('login'))
 
-    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
-    docent_self = Teacher.query.get(int(teacher_id))
-    if not docent_self or not docent_self.is_admin:
-        return "Geen toegang", 403
-
-    docent = Teacher.query.get(session['teacher_id'])
+    # docent = Teacher.query.get(session['teacher_id'])
     teams = Team.query.all()
     return render_template('teambeheer.html', docent=docent, teams=teams)
 
 @app.route("/beheer/teams/delete/<int:team_id>", methods=["POST"])
 def delete_team(team_id):
-    teacher_id = session.get('teacher_id')
-    docent = Teacher.query.get(teacher_id)
+    # teacher_id = session.get('teacher_id')
+    # docent = Teacher.query.get(teacher_id)
 
-    # Check of de gebruiker een docent en admin is
-    if not docent or not docent.is_admin:
-        return "Geen toegang", 403
+    docent = get_logged_in_teacher()
+
+    # Check of de gebruiker een docent is
+    if not docent:
+        return redirect(url_for('login'))
 
     # Check of het team met dat id bestaat
     team = Team.query.get(team_id)
     if not team:
-        return "Team niet gevonden", 404
+        return redirect(url_for("teams_dashboard", error="team_niet_gevonden"))
 
     # Verwijder het team uit de database en sla dit op
     db.session.delete(team)
@@ -399,11 +434,13 @@ def delete_team(team_id):
 
 @app.route("/beheer/teams/toevoegen", methods=["POST"])
 def add_team():
-    teacher_id = session.get('teacher_id')
-    docent = Teacher.query.get(teacher_id)
+    # teacher_id = session.get('teacher_id')
+    # docent = Teacher.query.get(teacher_id)
 
-    # Check of de gebruiker docent en admin is
-    if not docent or not docent.is_admin:
+    docent = get_logged_in_teacher()
+
+    # Check of de gebruiker docent is
+    if not docent:
         return "Geen toegang", 403
 
     # Haal de naam van het nieuwe team op uit de form
