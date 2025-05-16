@@ -359,7 +359,6 @@ def studenten_dashboard():
         return redirect(url_for('login'))
 
     # Vraag alle studenten op en check of er filters zijn ingevuld
-    studenten = Student.query.all()
     class_filter = request.args.get('class')
     team_filter = request.args.get('team')
     has_team_filter = request.args.get('has_team')
@@ -370,13 +369,21 @@ def studenten_dashboard():
     if class_filter:
         query = query.filter_by(student_class=class_filter)
     if team_filter:
-        query = query.filter_by(team_id=team_filter)
-    if has_team_filter == True:
-        query = query.filter_by(Student.team_id.isnot(None))
-    if has_team_filter == False:
-        query = query.filter_by(Student.team_id.is_(None))
+        try:
+            team_id = int(team_filter)
+            query = query.filter_by(team_id=team_id)
+        except ValueError:
+            pass
+    if has_team_filter == "met":
+        query = query.filter(Student.team_id.isnot(None))
+    if has_team_filter == "zonder":
+        query = query.filter(Student.team_id.is_(None))
 
-    return render_template('studentenbeheer.html', studenten=studenten, docent=docent)
+    studenten = query.all()
+    klassen = db.session.query(Student.student_class).distinct().all()
+    teams = Team.query.all()
+
+    return render_template('studentenbeheer.html', studenten=studenten, docent=docent, klassen=[k[0] for k in klassen], teams=teams, class_filter=class_filter, team_filter=team_filter, has_team_filter=has_team_filter)
 
 @app.template_filter('localtime')
 def localtime_filter(utc_dt):

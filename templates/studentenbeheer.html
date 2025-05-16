@@ -9,6 +9,7 @@
 </head>
 <body>
     <main>
+
         <h3>Nieuwe student toevoegen</h3>
         {% if error %}
             <p style="color: red;">{{ error }}</p>
@@ -24,6 +25,38 @@
             <p style="color: red;">De student die je probeert te verwijderen bestaat niet.</p>
         {% endif %}
 
+        <h3>Filters toepassen</h3>
+        <form method="get" action="{{ url_for('studenten_dashboard') }}">
+            <label>Klas:
+                <select name="class">
+                    <option value="">-- alle klassen --</option>
+                    {% for klas in klassen %}
+                        <option value="{{ klas }}" {% if class_filter == klas %}selected{% endif %}>{{ klas }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Team:
+                <select name="team">
+                    <option value="">-- alle teams --</option>
+                    {% for team in teams %}
+                        <option value="{{ team.team_id }}" {% if team_filter == team.team_id|string %}selected{% endif %}>{{ team.team_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Heeft team:
+                <select name="has_team">
+                    <option value="">-- Alles --</option>
+                    <option value="met" {% if has_team_filter == 'met' %}selected{% endif %}>Alleen met team</option>
+                    <option value="zonder" {% if has_team_filter == 'zonder' %}selected{% endif %}>Alleen zonder team</option>
+                </select>
+            </label>
+
+            <button type="submit">Filter(s) toepassen</button>
+        </form>
+
+        <h3>Lijst met studenten</h3>
         <table>
             <thead>
                 <th>Naam</th>
@@ -41,7 +74,7 @@
                     <td>{{ s.student_number }}</td>
                     <td>{{ s.student_class }}</td>
                     <td>{{ s.actiontype or "_" }}</td>
-                    <td>{{ s.team or "_" }}</td>
+                    <td>{{ s.team.team_name or "_" }}</td>
                     <td>
                         {% if s.student_choices %}
                             {{ (s.student_choices | sort(attribute='updated_at') | last).updated_at | localtime }}
