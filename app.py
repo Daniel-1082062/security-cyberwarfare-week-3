@@ -379,7 +379,7 @@ def studenten_dashboard():
 
     # studenten = query.all()
 
-    studenten_pagination = query.order_by(Student.student_name).paginate(page=page, per_page=per_page)
+    studenten_pagination = query.order_by(Student.student_id).paginate(page=page, per_page=per_page)
     studenten = studenten_pagination.items
 
     klassen = db.session.query(Student.student_class).distinct().all()

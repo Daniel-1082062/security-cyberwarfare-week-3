@@ -101,14 +101,26 @@
         </table>
 
         <div class="pagination">
-            {% if pagination.has_prev %}
-                <a href="{{ url_for('studenten_dashboard', page=pagination.prev_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">← Vorige</a>
-            {% endif %}
+            {% if pagination.pages > 1 %}
+                <ul style="list-style: none; padding: 0; display: flex; gap: 0.5rem;">
 
-            <span style="margin: 0 1rem;">Pagina {{ pagination.page }} van {{ pagination.pages }}</span>
+                    {% if pagination.has_prev %}
+                      <li><a href="{{ url_for('studenten_dashboard', page=pagination.prev_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">←</a></li>
+                    {% endif %}
+        <!--            <span style="margin: 0 1rem;">Pagina {{ pagination.page }} van {{ pagination.pages }}</span>-->
 
-            {% if pagination.has_next %}
-                <a href="{{ url_for('studenten_dashboard', page=pagination.next_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">Volgende →</a>
+                    {% for p in range(1, pagination.pages + 1) %}
+                        {% if p == pagination.page %}
+                            <li><strong>{{ p }}</strong></li>
+                        {% else %}
+                            <li><a href="{{ url_for('studenten_dashboard', page=p, class=class_filter, team=team_filter, has_team=has_team_filter) }}">{{ p }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pagination.has_next %}
+                      <li><a href="{{ url_for('studenten_dashboard', page=pagination.next_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">→</a></li>
+                    {% endif %}
+                </ul>
             {% endif %}
         </div>
 
