@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Student bewerken</title>
+</head>
+<body>
+    <h1>Studentenprofiel van {{ student.student_name }} bewerken</h1>
+
+    {% if request.args.get('saved') == '1' %}
+        <p style="color: green;">Studentgegevens zijn opgeslagen.</p>
+    {% endif %}
+
+    <form method="post">
+        <label>Naam:
+            <input type="text" name="student_name" value="{{ student.student_name }}" required>
+        </label><br>
+
+        <label>Klas:
+            <input type="text" name="student_class" value="{{ student.student_class }}" required>
+        </label><br>
+
+        <label>Team:
+            <select name="team_id">
+            <option value="">-- Geen team --</option>
+            {% for team in teams %}
+                <option value="{{ team.team_id }}"
+                {% if student.team and team.team_id == student.team.team_id %} selected {% endif %}>
+                {{ team.team_name }}
+                </option>
+            {% endfor %}
+            </select>
+        </label><br>
+
+        <button type="submit">Opslaan</button>
+    </form>
+</body>
+</html>

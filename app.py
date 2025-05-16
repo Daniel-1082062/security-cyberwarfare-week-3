@@ -358,7 +358,24 @@ def studenten_dashboard():
     if not docent:
         return redirect(url_for('login'))
 
+    # Vraag alle studenten op en check of er filters zijn ingevuld
     studenten = Student.query.all()
+    class_filter = request.args.get('class')
+    team_filter = request.args.get('team')
+    has_team_filter = request.args.get('has_team')
+
+    query=Student.query
+
+    # Als er filters zijn, voeg deze toe aan de query
+    if class_filter:
+        query = query.filter_by(student_class=class_filter)
+    if team_filter:
+        query = query.filter_by(team_id=team_filter)
+    if has_team_filter == True:
+        query = query.filter_by(Student.team_id.isnot(None))
+    if has_team_filter == False:
+        query = query.filter_by(Student.team_id.is_(None))
+
     return render_template('studentenbeheer.html', studenten=studenten, docent=docent)
 
 @app.template_filter('localtime')
@@ -500,6 +517,39 @@ def wijzig_student_team(student_id):
 
     db.session.commit()
     return redirect(url_for('student_details', student_id=student.student_id))
+
+@app.route('/beheer/student/<int:student_id>/bewerken', methods=['GET', 'POST'])
+def bewerk_student(student_id):
+    docent = get_logged_in_teacher()
+    if not docent:
+        return redirect(url_for('login'))
+
+    student = Student.query.get(student_id)
+    if not student:
+        return "Student niet gevonden", 404
+
+    teams = Team.query.all()
+
+    if request.method == 'POST':
+        # Haal de data op uit het formulier
+        student.student_name = request.form['student_name']
+        student.student_class = request.form['student_class']
+        # Check hier eerst of er een team is geselecteerd
+        team_id = request.form.get('team_id')
+
+        # Als er een team geselecteerd is, koppel deze dan, zo niet? Laat dit veld leeg.
+        if team_id:
+            student.team = Team.query.get(int(team_id))
+            student.team_assigned_by = docent
+        else:
+            student.team = None
+            student.team_assigned_by = None
+
+        # Sla op
+        db.session.commit()
+        return redirect(url_for('bewerk_student', student_id=student.student_id, saved='1'))
+
+    return render_template('bewerk_student.html', student=student, teams=teams, docent=docent)
 
 # Helpers
 def get_logged_in_teacher():
