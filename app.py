@@ -14,7 +14,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
-from models import Student, Statement, StatementChoice, StudentChoice, Teacher
+from models import Student, Statement, StatementChoice, StudentChoice, Teacher, Team
 @app.route('/')
 def index():
     return 'Hello World!'
@@ -360,6 +360,65 @@ def delete_student(student_id):
     db.session.commit()
     return redirect(url_for('studenten_dashboard'))
 
+@app.route("/beheer/teams", methods=["GET"])
+def teams_dashboard():
+    # Check of de gebruiker een docent is
+    teacher_id = session.get('teacher_id')
+    if not teacher_id:
+        return redirect(url_for('login'))
+
+    # Check of de docent een admin is (en check nogmaals of de gebruiker een docent is)
+    docent_self = Teacher.query.get(int(teacher_id))
+    if not docent_self or not docent_self.is_admin:
+        return "Geen toegang", 403
+
+    docent = Teacher.query.get(session['teacher_id'])
+    teams = Team.query.all()
+    return render_template('teambeheer.html', docent=docent, teams=teams)
+
+@app.route("/beheer/teams/delete/<int:team_id>", methods=["POST"])
+def delete_team(team_id):
+    teacher_id = session.get('teacher_id')
+    docent = Teacher.query.get(teacher_id)
+
+    # Check of de gebruiker een docent en admin is
+    if not docent or not docent.is_admin:
+        return "Geen toegang", 403
+
+    # Check of het team met dat id bestaat
+    team = Team.query.get(team_id)
+    if not team:
+        return "Team niet gevonden", 404
+
+    # Verwijder het team uit de database en sla dit op
+    db.session.delete(team)
+    db.session.commit()
+    return redirect(url_for("teams_dashboard"))
+
+@app.route("/beheer/teams/toevoegen", methods=["POST"])
+def add_team():
+    teacher_id = session.get('teacher_id')
+    docent = Teacher.query.get(teacher_id)
+
+    # Check of de gebruiker docent en admin is
+    if not docent or not docent.is_admin:
+        return "Geen toegang", 403
+
+    # Haal de naam van het nieuwe team op uit de form
+    team_name = request.form['team_name']
+
+    # Check of de naam van het team al bestaat
+    existing = Team.query.filter_by(team_name=team_name).first()
+    if existing:
+        error = "Deze teamnaam bestaat al."
+        teams = Team.query.all()
+        return render_template("teambeheer.html", docent=docent, teams=teams, error=error)
+
+    # Maak een nieuw team aan met de opgehaalde gegevens en sla deze op in de databse
+    new_team = Team(team_name=team_name, created_by=docent)
+    db.session.add(new_team)
+    db.session.commit()
+    return redirect(url_for("teams_dashboard"))
 
 if __name__ == '__main__':
     # with app.app_context():

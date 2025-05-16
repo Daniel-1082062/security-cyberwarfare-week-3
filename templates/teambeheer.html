@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Teambeheer</title>
+</head>
+<body>
+    <h1>Welkom {{ docent.teacher_name }} op de teambeheer pagina.</h1>
+    <h3>Nieuw team toevoegen</h3>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form action="/beheer/teams/toevoegen" method="POST">
+        <label>Teamnaam:
+            <input type="text" name="team_name" required>
+        </label>
+        <button type="submit">Toevoegen</button>
+    </form>
+    <h2>Teamoverzicht</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Teamnaam</th>
+                <th>Aangemaakt door</th>
+                <th>Verwijderen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+            <tr>
+                <td>{{ team.team_name }}</td>
+                <td>{{ team.created_by.teacher_name if team.created_by else "-" }}</td>
+                <td>
+                    <form action="/beheer/teams/delete/{{ team.team_id }}" method="post"
+                          onsubmit="return confirm('Weet je zeker dat je dit team wilt verwijderen?');">
+                        <button type="submit">Verwijderen</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
