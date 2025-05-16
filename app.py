@@ -474,12 +474,40 @@ def student_details(student_id):
     teams = Team.query.all()
     return render_template("student_details.html", student=student, teams=teams, docent=docent)
 
+@app.route("/beheer/student/<int:student_id>/team", methods=["POST"])
+def wijzig_student_team(student_id):
+    docent = get_logged_in_teacher()
+    if not docent:
+        return redirect(url_for('login'))
+
+    student = Student.query.get(student_id)
+    if not student:
+        return "Student niet gevonden", 404
+
+    # Haal de gekozen team_id op uit het formulier
+    team_id = request.form.get("team_id")
+
+    # Koppel student aan het gekozen team, of ontkoppel bij lege waarde
+    if team_id:
+        team = Team.query.get(int(team_id))
+        if not team:
+            return "Team niet gevonden", 404
+        student.team = team
+        student.team_assigned_by = docent
+    else:
+        student.team = None  # Team ontkoppelen
+        student.team_assigned_by = None
+
+    db.session.commit()
+    return redirect(url_for('student_details', student_id=student.student_id))
+
 # Helpers
 def get_logged_in_teacher():
     teacher_id = session.get('teacher_id')
     if not teacher_id:
         return None
     return Teacher.query.get(teacher_id)
+
 
 if __name__ == '__main__':
     # with app.app_context():
