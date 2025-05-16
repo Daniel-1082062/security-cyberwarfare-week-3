@@ -5,30 +5,40 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vragenlijst.css') }}">
     <title>Vragenlijst</title>
 </head>
 <body>
     <main>
         <div class="content">
             <div id="student-info">
-                <label>Studentnummer: <input type="text" id="student-number" /></label>
-                <button onclick="startSurvey()">Start</button>
+                <div class="student-info-text">
+                    <h1>Welkom bij de mbti test</h1>
+                    <h3>Vul hier je studentnummer in om te beginnen met de test</h3>
+                </div>
+                <div class="student-info-input">
+                    <label>Studentnummer: <input type="text" id="student-number" /></label>
+                    <button class="button" onclick="startSurvey()">Start</button>
+                </div>
             </div>
 
             <div id="question-box" style="display:none;">
                 <h2 id="question-number"></h2>
-                <button id="choice1" onclick="submitAnswer(1)"></button>
-                <button id="choice2" onclick="submitAnswer(2)"></button>
+                <div class="choices">
+                    <button class="button" id="choice1" onclick="submitAnswer(1)"></button>
+                    <button class="button" id="choice2" onclick="submitAnswer(2)"></button>
+                </div>
             </div>
 
             <div id="endscreen" style="display:none;">
                 <h2>Bedankt! Je hebt alle stellingen ingevuld.</h2>
                 <div id="result-box" style="display: none;">
                     <h3>Jouw MBTI-profiel is:</h3>
-                    <p id="mbti-result"></p>
+                    <b><em id="mbti-result"></em></b>
                     <p>Wil je de test opnieuw maken? Contacteer dan een beheerder.</p>
                 </div>
             </div>
+            <a class="admin-login" href="{{ url_for('login') }}">Inloggen voor docenten</a>
         </div>
     </main>
 
@@ -38,6 +48,7 @@
         // Haal het studentnummer uit het input veld en start de survey wanneer op de 'start' knop geklikt wordt
         function startSurvey() {
             studentNumber = document.getElementById("student-number").value;
+            document.getElementById("student-info").style.display = "none";
             loadNextStatement();
         }
         // GET request naar flask. Zodra er een response is wordt een JavaScript object gemaakt van de JSON. ALs de response een 404 is wordt het eindscherm getoond, aangezien dit betekent dat er geen statements meer over zijn.
@@ -57,15 +68,16 @@
                     if (!data) return;
                     // console.log(data);
                     document.getElementById("student-info").style.display = "none";
-                    document.getElementById("question-box").style.display ="block";
-                    document.getElementById("question-number").innerText = `Stelling ${data.statement_number}`;
+                    document.getElementById("question-box").style.display ="flex";
+                    document.getElementById("question-number").innerText = `${data.student_name}, dit is stelling ${data.statement_number}`;
                     document.getElementById("choice1").innerText = data.statement_choices[0].choice_text;
                     document.getElementById("choice2").innerText = data.statement_choices[1].choice_text;
                 });
         }
         // Haal het nummer van de stelling uit de h2
         function submitAnswer(choiceNumber) {
-            const statementNumber = document.getElementById("question-number").innerText.split(" ")[1];
+            const text = document.getElementById("question-number").innerText;
+            const statementNumber = text.split(" ").pop();
               // Stuur de gemaakte keuze naar het bijbehorende statement en laad daarna het volgende statement
               fetch(`/api/student/${studentNumber}/statement/${statementNumber}`, {
                 method: 'POST',

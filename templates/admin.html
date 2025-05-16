@@ -5,10 +5,12 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/beheerpaginas.css') }}">
+    <title>Docentenbeheer</title>
 </head>
 <body>
-    <h1>Welkom {{ docent.teacher_name }} op het adminpaneel.</h1>
+    <h1>Welkom {{ docent.teacher_name }} op de docentenbeheer pagina.</h1>
+    <h3>Nieuwe docent toevoegen</h3>
     {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
@@ -49,14 +51,14 @@
                 <td>
                     <!-- Knop om een docent te verwijderen, inclusief een check om te bevestigen -->
                     <form action="/admin/delete_teacher/{{ d.teacher_id }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze docent wil verwijderen?')">
-                          <button type="submit">Verwijderen</button>
+                          <button class="delete" type="submit">Verwijderen</button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
+    <a class="back" href="{{ url_for('beheer_dashboard') }}">Terug naar de docenten homepage</a>
     <!-- Wanneer adminrechten ontnomen worden: Check of de huidige gebruiker op het punt staat om zijn eigen rechten te ontnemen. Zo ja, geef een waarschuwing.-->
     <script>
         function handleAdminToggle(checkbox, targetId, currentUserId) {

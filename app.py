@@ -16,11 +16,6 @@ migrate = Migrate(app, db)
 # importeer het Student model zodat ik een nieuwe entry in de tabel kan maken.
 from models import Student, Statement, StatementChoice, StudentChoice, Teacher, Team
 
-
-@app.route('/')
-def index():
-    return 'Hello World!'
-
 # Route om een nieuwe student toe te voegen
 @app.route("/beheer/student/toevoegen", methods=['GET', 'POST'])
 def add_student():
@@ -65,7 +60,7 @@ def all_statements():
         for s in statements
     ])
 
-@app.route("/vragenlijst")
+@app.route("/")
 def vragenlijst():
         return render_template('vragenlijst.html')
 
@@ -92,6 +87,7 @@ def next_statement(student_number):
     # Maak een dictionary met de gegevens van het opgevraagde statement. Convert deze daarna met jsonify naar JSON en geef dit als response samen met 200 (OK).
     response = {
         'statement_number': next_statement.statement_number,
+        'student_name': student.student_name,
         'statement_choices': [
             {
                 'choice_number': choice.choice_number,
@@ -554,9 +550,9 @@ def bewerk_student(student_id):
 
         # Sla op
         db.session.commit()
-        return redirect(url_for('bewerk_student', student_id=student.student_id, saved='1'))
+        return redirect(url_for('student_details', student_id=student.student_id, saved='1'))
 
-    return render_template('bewerk_student.html', student=student, teams=teams, docent=docent)
+    return render_template('student_details.html', student=student, teams=teams, docent=docent)
 
 # Helpers
 def get_logged_in_teacher():

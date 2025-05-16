@@ -5,46 +5,79 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_details.css') }}">
     <title>Student Details</title>
 </head>
 <body>
-    <h1>Studentenprofiel van {{ student.student_name }}</h1>
-    <p>{{ student.student_number }}</p>
-    <p>{{ student.student_class }}</p>
-    {% if student.actiontype %}
-        <p>Persoonlijkheidstype: {{ student.actiontype }}</p>
-    {% else %}
-        <p><em>Persoonlijkheidstype is nog niet bepaald.</em></p>
-    {% endif %}
+    <main>
+        <h1>Studentenprofiel van {{ student.student_name }}</h1>
+        <p>{{ student.student_number }}</p>
+        <p>{{ student.student_class }}</p>
+        {% if student.actiontype %}
+            <p>Persoonlijkheidstype: {{ student.actiontype }}</p>
+        {% else %}
+            <p><em>Persoonlijkheidstype is nog niet bepaald.</em></p>
+        {% endif %}
 
-    <!-- Dropdown menu om het team van de student te selecteren -->
-    <form action="/beheer/student/{{ student.student_id }}/team" method="post">
-        <label for="team">Selecteer team:</label>
-        <select name="team_id" id="team">
-        <option value="">-- Geen team --</option>
-        {% for team in teams %}
-            <option value="{{ team.team_id }}"
-                {% if student.team and team.team_id == student.team.team_id %} selected {% endif %}>
-                {{ team.team_name }}
-            </option>
-        {% endfor %}
-  </select>
-  <button type="submit">Opslaan</button>
+        <!-- Dropdown menu om het team van de student te selecteren -->
+        <form action="/beheer/student/{{ student.student_id }}/team" method="post">
+            <label for="team">Selecteer team:</label>
+            <select name="team_id" id="team">
+            <option value="">-- Geen team --</option>
+            {% for team in teams %}
+                <option value="{{ team.team_id }}"
+                    {% if student.team and team.team_id == student.team.team_id %} selected {% endif %}>
+                    {{ team.team_name }}
+                </option>
+            {% endfor %}
+            </select>
+            <button type="submit">Opslaan</button>
 
-  <!-- Als er een team geselecteerd is voor de student, staat hier wie dat gedaan heeft. -->
-  {% if student.team and student.team_assigned_by %}
-    <p><strong>Team gekoppeld door:</strong> {{ student.team_assigned_by.teacher_name }}</p>
-  {% endif %}      
+            <!-- Als er een team geselecteerd is voor de student, staat hier wie dat gedaan heeft. -->
+            {% if student.team and student.team_assigned_by %}
+                <p><strong>Team gekoppeld door:</strong> {{ student.team_assigned_by.teacher_name }}</p>
+            {% endif %}
+        </form>
 
-</form>
-    <h2>Gemaakte keuzes</h2>
-    <ul>
-  {% for choice in student.student_choices %}
-    <li>
-      Stelling {{ choice.statement.statement_number }}:
-      {{ choice.statement_choice.choice_text }}
-    </li>
-  {% endfor %}
-</ul>
+        {% if request.args.get('saved') == '1' %}
+            <p style="color: green;">Studentgegevens zijn opgeslagen.</p>
+        {% endif %}
+
+        <h3>Gegevens van {{ student.student_name }} bewerken</h3>
+        <form method="post" action="{{ url_for('bewerk_student', student_id=student.student_id) }}">
+            <label>Naam:
+                <input type="text" name="student_name" value="{{ student.student_name }}" required>
+            </label><br>
+
+            <label>Klas:
+                <input type="text" name="student_class" value="{{ student.student_class }}" required>
+            </label><br>
+
+            <label>Team:
+                <select name="team_id">
+                <option value="">-- Geen team --</option>
+                {% for team in teams %}
+                    <option value="{{ team.team_id }}"
+                    {% if student.team and team.team_id == student.team.team_id %} selected {% endif %}>
+                    {{ team.team_name }}
+                    </option>
+                {% endfor %}
+                </select>
+            </label><br>
+
+            <button type="submit">Opslaan</button>
+        </form>
+
+        <h2>Gemaakte keuzes</h2>
+        <ul>
+      {% for choice in student.student_choices %}
+        <li>
+          Stelling {{ choice.statement.statement_number }}:
+          {{ choice.statement_choice.choice_text }}
+        </li>
+      {% endfor %}
+    </ul>
+    <a class="back" href="{{ url_for('studenten_dashboard') }}">Terug naar de studentenbeheer pagina</a>
+    </main>
 </body>
 </html>

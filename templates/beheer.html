@@ -5,15 +5,21 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Docenten Homepage</title>
 </head>
 <body>
-<h1>Welkom {{ docent.teacher_name }} op de docenten homepage.</h1>
-        {% if request.args.get('error') == 'geen_toegang' %}
-  <p style="color:red;">Je hebt geen toegang tot het docenten beheer.</p>
-{% endif %}
-<a href="{{ url_for('studenten_dashboard') }}">Studenten beheren</a>
-<a href="{{ url_for('admin_dashboard') }}">Docenten beheren</a>
-<a href="{{ url_for('teams_dashboard') }}">Teams beheren</a>
+<main>
+    <h1>Welkom {{ docent.teacher_name }}</h1>
+    <h3>op de docenten homepage.</h3>
+            {% if request.args.get('error') == 'geen_toegang' %}
+      <p style="color:red;">Je hebt geen toegang tot het docenten beheer.</p>
+    {% endif %}
+    <a href="{{ url_for('studenten_dashboard') }}" class="button">Studenten beheren</a>
+    <a href="{{ url_for('admin_dashboard') }}" class="button">Docenten beheren</a>
+    <a href="{{ url_for('teams_dashboard') }}" class="button">Teams beheren</a>
+
+    <a href="{{ url_for('vragenlijst') }}">Terug naar de test</a>
+</main>
 </body>
 </html>
