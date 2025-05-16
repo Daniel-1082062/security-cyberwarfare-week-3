@@ -77,3 +77,8 @@ form button {
 p {
   margin: 0.5rem 0;
 }
+
+.pagination {
+  margin-top: 24px;
+  margin-bottom: 32px;
+}

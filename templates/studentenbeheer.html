@@ -99,6 +99,19 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <div class="pagination">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('studenten_dashboard', page=pagination.prev_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">← Vorige</a>
+            {% endif %}
+
+            <span style="margin: 0 1rem;">Pagina {{ pagination.page }} van {{ pagination.pages }}</span>
+
+            {% if pagination.has_next %}
+                <a href="{{ url_for('studenten_dashboard', page=pagination.next_num, class=class_filter, team=team_filter, has_team=has_team_filter) }}">Volgende →</a>
+            {% endif %}
+        </div>
+
         <a class="back" href="{{ url_for('beheer_dashboard') }}">Terug naar de docenten homepage</a>
     </main>
 </body>

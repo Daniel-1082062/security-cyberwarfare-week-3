@@ -358,6 +358,8 @@ def studenten_dashboard():
     class_filter = request.args.get('class')
     team_filter = request.args.get('team')
     has_team_filter = request.args.get('has_team')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
 
     query=Student.query
 
@@ -375,11 +377,15 @@ def studenten_dashboard():
     if has_team_filter == "zonder":
         query = query.filter(Student.team_id.is_(None))
 
-    studenten = query.all()
+    # studenten = query.all()
+
+    studenten_pagination = query.order_by(Student.student_name).paginate(page=page, per_page=per_page)
+    studenten = studenten_pagination.items
+
     klassen = db.session.query(Student.student_class).distinct().all()
     teams = Team.query.all()
 
-    return render_template('studentenbeheer.html', studenten=studenten, docent=docent, klassen=[k[0] for k in klassen], teams=teams, class_filter=class_filter, team_filter=team_filter, has_team_filter=has_team_filter)
+    return render_template('studentenbeheer.html', studenten=studenten, docent=docent, klassen=[k[0] for k in klassen], teams=teams, class_filter=class_filter, team_filter=team_filter, has_team_filter=has_team_filter, pagination=studenten_pagination)
 
 @app.template_filter('localtime')
 def localtime_filter(utc_dt):
