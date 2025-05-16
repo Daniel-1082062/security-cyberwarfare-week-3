@@ -77,16 +77,16 @@
                     <td>{{ s.actiontype or "_" }}</td>
                     <td>{{ s.team.team_name or "_" }}</td>
                     <td>
-                        <form action="{{ url_for('student_details', student_id=s.student_id) }}">
-                            <button type="submit">Bekijk</button>
-                        </form>
-                    </td>
-                    <td>
                         {% if s.student_choices %}
                             {{ (s.student_choices | sort(attribute='updated_at') | last).updated_at | localtime }}
                         {% else %}
                             -
                         {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('student_details', student_id=s.student_id) }}">
+                            <button type="submit">Bekijken</button>
+                        </form>
                     </td>
                     <td>
                     <!-- Knop om een student te verwijderen, inclusief een check om te bevestigen -->
